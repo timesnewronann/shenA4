@@ -1,0 +1,39 @@
+Producer and consumer problem 
+
+Worry about the different parties to go with the walk through first
+
+2 Producers and 2 Consumers 
+
+Connected by a bounded buffer (brokerage queue): hold the incoming trade requests
+
+Has a max-capacity of 16 before getting blocked
+
+One more constraint: at most 5 bitcoins at the most 16 in the queue for total number of reqeusts
+
+Can have at most 16 ethereum there's no constraints 
+
+Up to you to setup another semaphore to set up that constraints 
+
+First sort out the necessary constraints
+
+Implicitly have 16 ethereums 
+
+For mutex access to the queue :
+semaphore for 16 max capacity -> semaphore
+5 bitcoins -> semaphore 
+16 ethereums -> semaphore 
+mutex -> semaphore 
+
+main needs to wait for the consumer that consumed the last request(item) -> need a semaphore
+
+for any synchronization do not use busy waiting or you get fucked and get 0
+DO NOT USE ANY INTEGER FOR ACCOMPLISHING THESE
+
+understand that you can use integers to track how many requests you have produced and consumed 
+
+do not use the numbers to perform the synchronization
+
+If the queue is full can not put more items than the producer Has
+
+Cannot use integer to be used as a flag to ensure the order of execution
+
