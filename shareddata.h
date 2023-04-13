@@ -12,7 +12,7 @@ class SHARED_DATA{
         sem_t availableSlots; // space in the buffer
         sem_t unconsumed;     // items in the buffer
 
-        queue<RequestType> buffer;
+        queue<RequestType*> buffer;
 };
 
 #endif //CS480A4_SHAREDDATA_H

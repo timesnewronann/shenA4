@@ -3,6 +3,7 @@
 // in producer thread can look at the shared data strucure for what we need to pass in for each individual thread
 #include <iostream>
 #include <stdio.h>
+#include <unistd.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include "cryptoexchange.h"
@@ -27,23 +28,23 @@ void *producer(void *argument)
 
         // check if we reached the max production
         // make sure we have room on the buffer
-        sem_wait(&sharedData.availableSlots)
-            // need available slots from shareddata
+        sem_wait(&sharedData.availableSlots);
+        // need available slots from shareddata
 
-            // wait for the appropriate semaphore
+        // wait for the appropriate semaphore
 
-            // lock the queue
-            sem_wait(sharedData.);
+        // lock the queue
+        sem_wait(&sharedData.mutex);
 
         // add the type to the request queue
         sharedData.buffer.push(requestedType);
         // release the lock
-        sem_post();
+        sem_post(&sharedData.mutex);
 
         // signal the consumer semaphore to alert there is a new request available
-        sem_post();
+        sem_post(&sharedData.unconsumed);
 
-        // sleep
+        // sleep outside the critical region to access the broker queue
         usleep();
     }
 }
