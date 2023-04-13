@@ -10,6 +10,7 @@
 #include "consumer.h"
 #include "producer.h"
 #include "cryptoexchange.h"
+#include "shareddata.h"
 
 #define DEFAULT_NO_DELAY 0
 #define BADFLAG 0
@@ -44,7 +45,7 @@ int main(int argc, char **argv)
             }
             numRequests = numParse;
             break;
-        // blockChain X consuming time 
+        // blockChain X consuming time
         case 'x':
             numParse = atoi(optarg);
             if (optarg == "")
@@ -54,7 +55,7 @@ int main(int argc, char **argv)
             xConsumingTime = numParse;
             break;
 
-        // blockChain Y consuming time 
+        // blockChain Y consuming time
         case 'y':
             numParse = atoi(optarg);
             if (optarg == "")
@@ -63,7 +64,7 @@ int main(int argc, char **argv)
             }
             yConsumingTime = numParse;
             break;
-        // bitCoin consuming time 
+        // bitCoin consuming time
         case 'b':
             numParse = atoi(optarg);
             if (optarg == "")
@@ -73,7 +74,7 @@ int main(int argc, char **argv)
             bitProducingTime = numParse;
             break;
 
-        // etherum consuming time 
+        // etherum consuming time
         case 'e':
             numParse = atoi(optarg);
             if (optarg == "")
@@ -88,6 +89,8 @@ int main(int argc, char **argv)
         }
     }
 
+    SHARED_DATA sharedData;
+
     // on start create two producers and two consumers
     // Semaphore init -> don't use mutex or you're fucked
 
@@ -97,24 +100,32 @@ int main(int argc, char **argv)
      * Initialization of semaphores
      */
 
-    sem_t mutex;          // for the mutex lock of the broker queue (critical section)
-    sem_t availableSlots; // space in the buffer
-    sem_t unconsumed;     // items in the buffer
-    sem_t precedence;     // main waiting for the last item to be consumed before exiting
+    // sem_t mutex;          // for the mutex lock of the broker queue (critical section)
+    // sem_t availableSlots; // space in the buffer
+    // sem_t unconsumed;     // items in the buffer
+    sem_t precedence; // main waiting for the last item to be consumed before exiting
 
-    sem_init(&mutex, 0, 1);
-    sem_init(&availableSlots, 0, BUFFERSIZE);
-    sem_init(&unconsumed, 0, 0);
+    sem_init(&sharedData.mutex, 0, 1);
+    sem_init(&sharedData.availableSlots, 0, BUFFERSIZE);
+    sem_init(&sharedData.unconsumed, 0, 0);
     sem_init(&precedence, 0, 0);
 
     /*
      * Create all producer and consumer threads at the same time.
      */
+
     pthread_t producerThreadBitcoin;
     // pthread_t producerThreadEtherum;
 
     pthread_t consumerBlockX;
     // pthread_t consumerBlockY;
+
+    if(pthread_create(&producerThreadBitcoin, NULL, &producer, &sharedData) != 0){
+        return BADFLAG;
+    }
+    if(pthread_create(&consumerBlockX, NULL, &consumer, &sharedData) != 0){
+        return BADFLAG;
+    }
 
     // wait for consumer to consume last item
     // use barrier
@@ -127,8 +138,8 @@ int main(int argc, char **argv)
     // while loop for producer/consumer we don't control the switching
 
     // once finished
-    sem_destroy(&mutex);
-    sem_destroy(&availableSlots);
-    sem_destroy(&unconsumed);
+    sem_destroy(&sharedData.mutex);
+    sem_destroy(&sharedData.availableSlots);
+    sem_destroy(&sharedData.unconsumed);
     sem_destroy(&precedence);
 }

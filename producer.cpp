@@ -13,8 +13,9 @@ using namespace std;
 
 void *producer(void *argument)
 {
-    SHARED_DATA sharedData;
+    int sleepTime = 0;
 
+    SHARED_DATA sharedData;
     // create the item type depending on the argument we pass
     // RequestType requestedType = *((RequestType *)argument);
     RequestType *requestedType;
@@ -45,6 +46,7 @@ void *producer(void *argument)
         sem_post(&sharedData.unconsumed);
 
         // sleep outside the critical region to access the broker queue
-        usleep();
+        sleepTime = 0; // change the sleepTime later through arguments
+        usleep(sleepTime);
     }
 }

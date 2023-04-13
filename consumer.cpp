@@ -13,6 +13,7 @@ using namespace std;
 void consumer(void *argument)
 {
 
+    int sleepTime;
     // item type bitcoin;
     // item type consumer;
     // item type ethereum;
@@ -43,6 +44,7 @@ void consumer(void *argument)
         // process the request
 
         // simulate the sleep
-        usleep();
+        sleepTime = 0; // change the sleepTime later through arguments
+        usleep(sleepTime);
     }
 }

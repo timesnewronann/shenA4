@@ -7,6 +7,9 @@
 // need to track what's happening in the queue at a particular moment
 // track over the time and history of our whole execution how many requests were produced and consumed
 
+
+// in broker we may intialize the semaphores of bitcoin and ethereum
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
