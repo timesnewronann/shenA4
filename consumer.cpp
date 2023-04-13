@@ -12,8 +12,7 @@ using namespace std;
 
 void consumer(void *argument)
 {
-
-    int sleepTime;
+    int sleepTime = 0;
     // item type bitcoin;
     // item type consumer;
     // item type ethereum;
@@ -27,6 +26,10 @@ void consumer(void *argument)
     {
         // wait for the unconsumed semaphore
         sem_wait(&sharedData.unconsumed);
+
+        /*
+        * Accessing critical section
+        */
 
         // lock the queue
         sem_wait(&sharedData.mutex);
@@ -43,8 +46,12 @@ void consumer(void *argument)
 
         // process the request
 
-        // simulate the sleep
-        sleepTime = 0; // change the sleepTime later through arguments
+        // simulate the consumption with sleep 
         usleep(sleepTime);
+        
+    }
+
+    if(!sharedData.buffer.size() && sharedData.currentProductionNumber == sharedData.numRequests){
+        sem_post(&sharedData.precedence);
     }
 }

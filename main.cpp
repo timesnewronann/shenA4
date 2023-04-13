@@ -14,7 +14,9 @@
 
 #define DEFAULT_NO_DELAY 0
 #define BADFLAG 0
+#define BITCOIN_CAPACITY 5
 #define BUFFERSIZE 16
+#define ETHEREUM_CAPACITY 16
 #define DEFAULT_NUM_REQUESTS 100
 
 using namespace std;
@@ -22,14 +24,15 @@ using namespace std;
 int main(int argc, char **argv)
 {
     // consider storing the initialization of these variables in a separate class if they are shared
-    int numRequests;
-    int xConsumingTime;
-    int yConsumingTime;
-    int bitProducingTime;
-    int ethProductingTime;
+    // int numRequests;
+    // int xConsumingTime;
+    // int yConsumingTime;
+    // int bitProducingTime;
+    // int ethProductingTime;
 
     int option; // will be used for command line switch
     int numParse;
+    SHARED_DATA sharedData;
 
     // used to past in the arguments
     while ((option = getopt(argc, argv, "r:x:y:b:e:")) != -1)
@@ -43,7 +46,7 @@ int main(int argc, char **argv)
             {
                 numParse = DEFAULT_NUM_REQUESTS;
             }
-            numRequests = numParse;
+            sharedData.numRequests = numParse;
             break;
         // blockChain X consuming time
         case 'x':
@@ -52,7 +55,7 @@ int main(int argc, char **argv)
             {
                 numParse = DEFAULT_NO_DELAY;
             }
-            xConsumingTime = numParse;
+            sharedData.xConsumingTime = numParse;
             break;
 
         // blockChain Y consuming time
@@ -62,7 +65,7 @@ int main(int argc, char **argv)
             {
                 numParse = DEFAULT_NO_DELAY;
             }
-            yConsumingTime = numParse;
+            sharedData.yConsumingTime = numParse;
             break;
         // bitCoin consuming time
         case 'b':
@@ -71,7 +74,7 @@ int main(int argc, char **argv)
             {
                 numParse = DEFAULT_NO_DELAY;
             }
-            bitProducingTime = numParse;
+            sharedData.bitProducingTime = numParse;
             break;
 
         // etherum consuming time
@@ -81,7 +84,7 @@ int main(int argc, char **argv)
             {
                 numParse = DEFAULT_NO_DELAY;
             }
-            ethProductingTime = numParse;
+            sharedData.ethProductingTime = numParse;
             break;
         // Case that is not specified in the list of optional arguments.
         default:
@@ -89,7 +92,7 @@ int main(int argc, char **argv)
         }
     }
 
-    SHARED_DATA sharedData;
+    
 
     // on start create two producers and two consumers
     // Semaphore init -> don't use mutex or you're fucked
@@ -103,12 +106,14 @@ int main(int argc, char **argv)
     // sem_t mutex;          // for the mutex lock of the broker queue (critical section)
     // sem_t availableSlots; // space in the buffer
     // sem_t unconsumed;     // items in the buffer
-    sem_t precedence; // main waiting for the last item to be consumed before exiting
+    //sem_t precedence; // main waiting for the last item to be consumed before exiting
 
     sem_init(&sharedData.mutex, 0, 1);
     sem_init(&sharedData.availableSlots, 0, BUFFERSIZE);
     sem_init(&sharedData.unconsumed, 0, 0);
-    sem_init(&precedence, 0, 0);
+    sem_init(&sharedData.precedence, 0, 0);
+    sem_init(&sharedData.bitCoinsInBuffer, 0, BITCOIN_CAPACITY);
+    sem_init(&sharedData.etheriumInBuffer, 0, ETHEREUM_CAPACITY);
 
     /*
      * Create all producer and consumer threads at the same time.
@@ -137,9 +142,11 @@ int main(int argc, char **argv)
     // will have interleaving execution
     // while loop for producer/consumer we don't control the switching
 
+    sem_wait(&sharedData.precedence);
+
     // once finished
     sem_destroy(&sharedData.mutex);
     sem_destroy(&sharedData.availableSlots);
     sem_destroy(&sharedData.unconsumed);
-    sem_destroy(&precedence);
+    sem_destroy(&sharedData.precedence);
 }
