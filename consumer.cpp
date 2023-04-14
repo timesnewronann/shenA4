@@ -19,30 +19,30 @@ void consumer(void *argument)
     // create blockchain x first
     // create all of them at the same time
 
-    SHARED_DATA sharedData;
+    SHARED_DATA *sharedData = (SHARED_DATA *)argument;
     RequestType *requestedType;
 
     while (true)
     {
         // wait for the unconsumed semaphore
-        sem_wait(&sharedData.unconsumed);
+        sem_wait(&sharedData->unconsumed);
 
         /*
         * Accessing critical section
         */
 
         // lock the queue
-        sem_wait(&sharedData.mutex);
+        sem_wait(&sharedData->mutex);
 
         // get the item from the queue
-        requestedType = sharedData.buffer.front();
-        sharedData.buffer.pop(); // pop off the queue
+        requestedType = sharedData->buffer.front();
+        sharedData->buffer.pop(); // pop off the queue
 
         // unlock
-        sem_post(&sharedData.mutex);
+        sem_post(&sharedData->mutex);
 
         // alert there is now a spot in the buffer
-        sem_post(&sharedData.availableSlots);
+        sem_post(&sharedData->availableSlots);
 
         // process the request
 
@@ -51,7 +51,7 @@ void consumer(void *argument)
         
     }
 
-    if(!sharedData.buffer.size() && sharedData.currentProductionNumber == sharedData.numRequests){
-        sem_post(&sharedData.precedence);
+    if(!sharedData->buffer.size() && sharedData->currentProductionNumber == sharedData->numRequests){
+        sem_post(&sharedData->precedence);
     }
 }

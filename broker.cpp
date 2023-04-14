@@ -10,6 +10,8 @@
 
 // in broker we may intialize the semaphores of bitcoin and ethereum
 
+// use broker for the size issues 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
