@@ -7,6 +7,7 @@
 #include <pthread.h>
 #include "cryptoexchange.h"
 #include "shareddata.h"
+#include "log.h"
 
 using namespace std;
 
@@ -19,14 +20,28 @@ void consumer(void *argument)
     // create blockchain x first
     // create all of them at the same time
 
-    SHARED_DATA *sharedData = (SHARED_DATA *)argument;
+    SHARED_DATA *sharedData = (SHARED_DATA *)argument; 
     int sleepTime = 0;
-    RequestType *requestedType;
-    ConsumerType *consumedType;
+    RequestType *requestedType; // declare the item type
+    ConsumerType consumedType; // delcare the item type 
+
+    if (sharedData->isBlockX)
+    {
+        consumedType = BlockchainX;
+        //blockType = BlockchainX;
+    }
+    else
+    {
+        consumedType = BlockchainY;
+        //blockType = BlockchainY;
+    }
+
+
+
  
     while (true)
     {
-        // wait for the unconsumed semaphore
+        // wait for the unconsumed semaphore -> block until something is available to consume 
         sem_wait(&sharedData->unconsumed);
 
         /*
@@ -38,6 +53,10 @@ void consumer(void *argument)
         // get the item from the queue
         requestedType = sharedData->buffer.front();
         sharedData->buffer.pop(); // pop off the queue
+
+
+        // check for the pointer *requestedType when testing 
+        log_request_removed(consumedType,*requestedType, *sharedData->coinsConsumed,sharedData->coinsInRequestQueue); 
 
         // unlock
         sem_post(&sharedData->mutex);
@@ -63,7 +82,7 @@ void consumer(void *argument)
             sleepTime = sharedData->yConsumingTime;
         }
         
-        // simulate the consumption with sleep 
+        // simulate the consumption with sleep -> consume or use item
         usleep(sleepTime);
         
     }

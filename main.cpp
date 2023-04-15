@@ -92,6 +92,18 @@ int main(int argc, char **argv)
         }
     }
 
+
+    //initialize coinsProduced and coinsInRequestQueue arrays for logging purposes
+    sharedData.coinsProduced[0] = 0;
+    sharedData.coinsProduced[1] = 0;
+
+    sharedData.coinsInRequestQueue[0] = 0;
+    sharedData.coinsInRequestQueue[1] = 0;
+
+    //initialize coinsConsumed array for logging purposes
+    sharedData.coinsConsumed[0] = 0;
+    sharedData.coinsConsumed[1] = 0;
+
     
 
     // on start create two producers and two consumers
@@ -108,12 +120,24 @@ int main(int argc, char **argv)
     // sem_t unconsumed;     // items in the buffer
     //sem_t precedence; // main waiting for the last item to be consumed before exiting
 
-    sem_init(&sharedData.mutex, 0, 1);
-    sem_init(&sharedData.availableSlots, 0, BUFFERSIZE);
-    sem_init(&sharedData.unconsumed, 0, 0);
-    sem_init(&sharedData.precedence, 0, 0);
-    sem_init(&sharedData.bitCoinsInBuffer, 0, BITCOIN_CAPACITY);
-    sem_init(&sharedData.etheriumInBuffer, 0, ETHEREUM_CAPACITY);
+    if(sem_init(&sharedData.mutex, 0, 1) == -1){
+        cerr << "mutex semaphore failed" << endl;
+    }
+    if(sem_init(&sharedData.availableSlots, 0, BUFFERSIZE) == -1){
+        cerr << "avaiableSlots semaphore failed" << endl;
+    }
+    if(sem_init(&sharedData.unconsumed, 0, 0) == -1){
+        cerr << "unconsumed semaphore failed" << endl;
+    }
+    if(sem_init(&sharedData.precedence, 0, 0) == -1){
+        cerr << "precedence sempahore failed" << endl;
+    }
+    if(sem_init(&sharedData.bitCoinsInBuffer, 0, BITCOIN_CAPACITY) == -1){
+        cerr << "bitCoinsInBuffer semaphore failed" << endl;
+    }
+    if(sem_init(&sharedData.ethereumInBuffer, 0, ETHEREUM_CAPACITY) == -1){
+        cerr << "ethereumInBuffer semaphore failed" << endl;
+    }
 
     /*
      * Create all producer and consumer threads at the same time.
@@ -160,6 +184,7 @@ int main(int argc, char **argv)
     // while loop for producer/consumer we don't control the switching
 
     sem_wait(&sharedData.precedence);
+    log_production_history(sharedData.coinsProduced, sharedData.coinsConsumed);
 
     // once finished
     sem_destroy(&sharedData.mutex);

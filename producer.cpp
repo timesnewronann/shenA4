@@ -18,22 +18,23 @@ using namespace std;
 void *producer(void *argument)
 {
     SHARED_DATA *sharedData = (SHARED_DATA *)argument;
-    sharedData->currentProductionNumber = 0;
     int sleepTime = 0;
     // create the item type depending on the argument we pass
     // RequestType requestedType = *((RequestType *)argument);
     
-    RequestType *requestedType;
+    
 
-    int coins[2];
+    
+
     int coinType; 
 
+    RequestType requestedType;
     if(sharedData->isBitCoin){
-        requestedType = new RequestType(Bitcoin);
+        requestedType = Bitcoin;
         coinType = bitcoinSignature;
     }
     else{
-        requestedType = new RequestType(Ethereum);
+        requestedType = Ethereum;
         coinType = ethereumSignature;
     }
 
@@ -42,8 +43,6 @@ void *producer(void *argument)
     // do production first
     while (true) // true is the constant is 1
     {
-   
-        coins[coinType]++;
 
         usleep(sleepTime);
 
@@ -54,15 +53,11 @@ void *producer(void *argument)
         {
             sleepTime = sharedData->ethProductingTime;
         }
-        // sleep outside the critical region to access the broker queue
-        usleep(sleepTime);
-        
-        sharedData->currentProductionNumber++;
 
         // produce the item to place into the buffer
-
+        usleep(sleepTime);
         
-        // check if we reached the max production
+        
         // make sure we have room on the buffer
         sem_wait(&sharedData->availableSlots);
 
@@ -74,7 +69,13 @@ void *producer(void *argument)
         sem_wait(&sharedData->mutex);
 
         // add the type to the request queue
-        sharedData->buffer.push(requestedType);
+        sharedData->buffer.push(&requestedType);
+
+        // produced and inRequestQueue reflect numbers *after* adding the current request.
+        sharedData->coinsProduced[coinType]++;
+        sharedData->coinsInRequestQueue[coinType]++;
+        log_request_added(requestedType,sharedData->coinsProduced,sharedData->coinsInRequestQueue);
+
         // release the lock
         sem_post(&sharedData->mutex);
 
@@ -87,7 +88,7 @@ void *producer(void *argument)
 
         //check if the sum of bit and eth equals the total number of requests --> signal
         //when request production is complete
-        if(coins[bitcoinSignature] + coins[ethereumSignature] == sharedData->numRequests){
+        if(sharedData->coinsProduced[bitcoinSignature] + sharedData->coinsProduced[ethereumSignature] == sharedData->numRequests){
             sem_post(&sharedData->precedence);
         }
 
