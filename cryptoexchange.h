@@ -10,7 +10,7 @@ extern const char *producerNames[];
 extern const char *producerAbbrevs[];  
 extern const char *consumerNames[]; 
 
-/*
+/*\
  * Enumerated types to be used by the producers and consumers
  * These are expected in the input/output functions (log.h)
  * should be useful in your producer and consumer code.

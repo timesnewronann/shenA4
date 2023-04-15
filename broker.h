@@ -1,7 +1,20 @@
-#include <pthread.h>
+// have parameters for producers and consumers and a shared buffer for the
+// broker queue
+#ifndef BROKER_H
+#define BROKER_H
+
 #include <queue>
-class Broker{
+#include <semaphore.h>
+
+#include "cryptoexchange.h"
+#include "shareddata.h"
+using namespace std;
+
+class Broker
+{
 public:
-    pthread_mutex_t queue_mutex;
-    
+       // request Queue
+    queue<RequestType *> requestQueue;
 };
+
+#endif
