@@ -41,6 +41,9 @@ int main(int argc, char **argv)
     sharedData.bitProducingTime = DEFAULT_NO_DELAY;
     sharedData.ethProductingTime = DEFAULT_NO_DELAY;
 
+    //default sleep time 
+    int sleepTime = 0;
+
     // used to past in the arguments
     while ((option = getopt(argc, argv, "r:x:y:b:e:")) != -1)
     {

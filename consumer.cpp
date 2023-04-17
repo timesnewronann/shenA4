@@ -14,12 +14,7 @@ using namespace std;
 void consumer(void *argument)
 {
     
-    // item type bitcoin;
-    // item type consumer;
-    // item type ethereum;
-    // create blockchain x first
-    // create all of them at the same time
-
+    // using the arguments to pass in the sharedData where it's needed
     SHARED_DATA *sharedData = (SHARED_DATA *)argument; 
     int sleepTime = 0;
     RequestType *requestedType; // declare the item type

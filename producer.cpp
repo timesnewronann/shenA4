@@ -17,28 +17,38 @@ using namespace std;
 
 void *producer(void *argument)
 {
+    //initialize shared data structure
     SHARED_DATA *sharedData = (SHARED_DATA *)argument;
-    int sleepTime = 0;
-   
 
+    //default sleep time 
+    int sleepTime = 0;
+
+    // declare the type of coin being passed through
     int coinType; 
 
+    // declare the requested type of coin
     RequestType requestedType;
+
+
+    //CHECK THE COIN TYPE DEPENDING ON THE THREAD
+    // check if the coin is a bitcoin
     if(sharedData->isBitCoin){
-        requestedType = Bitcoin;
+        requestedType = Bitcoin; // set the requestedType to bitcoin
         coinType = bitcoinSignature;
     }
-    else{
+    else{ // if not bticoin the type is ethereum
         requestedType = Ethereum;
         coinType = ethereumSignature;
     }
 
+
     
-    // do production first
+    // producing a new coin
     while (true) // true is the constant is 1
     {
+        // if the coin is a bitcoin
         if(sharedData->isBitCoin){
-            sleepTime = sharedData->bitProducingTime;
+            sleepTime = sharedData->bitProducingTime; // set the sleepTime to the bitcoin producing time 
 
             // need to check the amount of bitcoin produced
             sem_wait(&sharedData->bitCoinsInBuffer);
@@ -46,7 +56,7 @@ void *producer(void *argument)
         }
         else // ethereum sleep time if is not bitcoin
         {
-            sleepTime = sharedData->ethProductingTime;
+            sleepTime = sharedData->ethProductingTime; // set the sleepTime to the ethereum producing time 
         }
 
         
@@ -64,10 +74,10 @@ void *producer(void *argument)
         // lock the queue
         sem_wait(&sharedData->mutex);
 
-        // add the type to the request queue
+        // add the type to the request queue through pushing into the queue
         sharedData->buffer.push(&requestedType);
 
-        // produced and inRequestQueue reflect numbers *after* adding the current request.
+        // produced and inRequestQueue reflect numbers *after* adding the current request. (For logging purposes)
         sharedData->coinsProduced[coinType]++;
         sharedData->coinsInRequestQueue[coinType]++;
         log_request_added(requestedType,sharedData->coinsProduced,sharedData->coinsInRequestQueue);
@@ -79,7 +89,7 @@ void *producer(void *argument)
         * ... EXITING CRITICAL SECTION
         */
 
-        // signal the consumer semaphore to alert there is a new request available
+        // signal the consumer semaphore to alert there is a new request available (increment the number of items in the queue)
         sem_post(&sharedData->unconsumed);
 
         //check if the sum of bit and eth equals the total number of requests --> signal
