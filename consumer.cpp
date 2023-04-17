@@ -71,7 +71,6 @@ void consumer(void *argument)
         * ... EXITING CRITICAL SECTION
         */
 
-        
         if(*requestedType == Bitcoin)
         {
             sem_post(&sharedData->bitCoinsInBuffer);
@@ -86,6 +85,7 @@ void consumer(void *argument)
             sleepTime = sharedData->xConsumingTime;
         }
         */
+       
         if(sharedData->isBlockX)
         {
             sleepTime = sharedData->xConsumingTime;

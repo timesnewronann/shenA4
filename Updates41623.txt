@@ -1,0 +1,1 @@
+When handling two different blockchains and coins, the broker overproduces and the bitcoin goes negative 

@@ -39,7 +39,7 @@ void *producer(void *argument)
     {
         if(sharedData->isBitCoin){
             sleepTime = sharedData->bitProducingTime;
-            
+
             // need to check the amount of bitcoin produced
             sem_wait(&sharedData->bitCoinsInBuffer);
 
