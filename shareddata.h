@@ -15,6 +15,7 @@ class SHARED_DATA{
         sem_t bitCoinsInBuffer; //there can be no more than 5 bitcoin requests in the buffer at one time.
         sem_t ethereumInBuffer; // there can be no more tahn 16 ethereum requests in the buffer at one time.
         sem_t precedence; // for ensuring completion of last item to be consumed before exiting main thread.  
+    
         queue<RequestType*> buffer; //the broker queue
         
 
@@ -27,12 +28,14 @@ class SHARED_DATA{
         int bitProducingTime;
         int ethProductingTime;
 
-        bool isBitCoin;
-        bool isBlockX;
+        bool isBitCoin; //variable to declare bitcoin or ethereum production for the respective thread. 
+        bool isBlockX;  //variable to declare blockchain x or blockychain y for the respective thread. 
 
-        unsigned int coinsProduced[2]; //array to keep track of the number of bitcoin and etherum produced separately 
-        unsigned int coinsInRequestQueue[2];
-        unsigned int *coinsConsumed[2];
+        unsigned int coinsProduced[2]; //array to monitor the number of bitcoin and etherum produced separately 
+        unsigned int coinsInRequestQueue[2]; //array to monitor the influx/outflux of bitcoin and ethereum in the request queue
+        unsigned int coinsConsumed[2][2]; //array to monitor bitcoin and ethereum produced from blockchain x and blockchain y
+
+        //unsigned int *coinsConsumed[2][2];
 
 };
 

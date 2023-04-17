@@ -1,0 +1,9 @@
+When handling two different blockchains and coins, the broker overproduces and the bitcoin goes negative 
+
+git commands:
+git checkout -b [name of branch]
+
+git status 
+git add .
+git commit -m "message you want" 
+git push

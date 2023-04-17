@@ -23,24 +23,21 @@ void consumer(void *argument)
     SHARED_DATA *sharedData = (SHARED_DATA *)argument; 
     int sleepTime = 0;
     RequestType *requestedType; // declare the item type
-    ConsumerType consumedType; // delcare the item type 
+    ConsumerType consumer; // delcare the item type 
+
 
     if (sharedData->isBlockX)
     {
-        consumedType = BlockchainX;
+        consumer = BlockchainX;
         //blockType = BlockchainX;
     }
     else
     {
-        consumedType = BlockchainY;
+        consumer = BlockchainY;
         //blockType = BlockchainY;
     }
 
-
-
- 
-    while (true)
-    {
+    while (true){
         // wait for the unconsumed semaphore -> block until something is available to consume 
         sem_wait(&sharedData->unconsumed);
 
@@ -55,8 +52,15 @@ void consumer(void *argument)
         sharedData->buffer.pop(); // pop off the queue
 
 
+        //increment the amount of coins consumed (For logging purposes)
+        sharedData->coinsConsumed[consumer][*requestedType]++;
+
+        //decrement the amount of coins in the queue because we popped out from the queue (For logging purposes)
+        sharedData->coinsInRequestQueue[*requestedType]--;
+
+
         // check for the pointer *requestedType when testing 
-        log_request_removed(consumedType,*requestedType, *sharedData->coinsConsumed,sharedData->coinsInRequestQueue); 
+        log_request_removed(consumer,*requestedType, sharedData->coinsConsumed[consumer],sharedData->coinsInRequestQueue); 
 
         // unlock
         sem_post(&sharedData->mutex);
@@ -64,6 +68,12 @@ void consumer(void *argument)
         /*
         * ... EXITING CRITICAL SECTION
         */
+
+        //bitcoin was consumed so add one more available space to bitcoinsInBuffer
+        if(*requestedType == Bitcoin)
+        {
+            sem_post(&sharedData->bitCoinsInBuffer);
+        }
 
         // alert there is now a spot in the buffer
         sem_post(&sharedData->availableSlots);
@@ -74,6 +84,7 @@ void consumer(void *argument)
             sleepTime = sharedData->xConsumingTime;
         }
         */
+       
         if(sharedData->isBlockX)
         {
             sleepTime = sharedData->xConsumingTime;
@@ -82,9 +93,19 @@ void consumer(void *argument)
             sleepTime = sharedData->yConsumingTime;
         }
         
+       
+        
         // simulate the consumption with sleep -> consume or use item
         usleep(sleepTime);
+
+
+        // need to break out of the while loop
+        if(sharedData->coinsProduced[0] + sharedData->coinsProduced[1] == sharedData->numRequests && sharedData->buffer.size() == 0)
+        {
+            break;
+        }
         
+    
     }
 
     if(!sharedData->buffer.size()){

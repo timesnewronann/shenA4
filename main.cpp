@@ -34,6 +34,13 @@ int main(int argc, char **argv)
     int numParse;
     SHARED_DATA sharedData;
 
+    // Set the default values for the arguments
+    sharedData.numRequests = DEFAULT_NUM_REQUESTS;
+    sharedData.xConsumingTime = DEFAULT_NO_DELAY;
+    sharedData.yConsumingTime = DEFAULT_NO_DELAY;
+    sharedData.bitProducingTime = DEFAULT_NO_DELAY;
+    sharedData.ethProductingTime = DEFAULT_NO_DELAY;
+
     // used to past in the arguments
     while ((option = getopt(argc, argv, "r:x:y:b:e:")) != -1)
     {
@@ -92,7 +99,6 @@ int main(int argc, char **argv)
         }
     }
 
-
     //initialize coinsProduced and coinsInRequestQueue arrays for logging purposes
     sharedData.coinsProduced[0] = 0;
     sharedData.coinsProduced[1] = 0;
@@ -101,24 +107,17 @@ int main(int argc, char **argv)
     sharedData.coinsInRequestQueue[1] = 0;
 
     //initialize coinsConsumed array for logging purposes
-    sharedData.coinsConsumed[0] = 0;
-    sharedData.coinsConsumed[1] = 0;
+    sharedData.coinsConsumed[0][0] = 0;
+    sharedData.coinsConsumed[0][1] = 0;
+    sharedData.coinsConsumed[1][0] = 0;
+    sharedData.coinsConsumed[1][1] = 0;
 
-    
-
-    // on start create two producers and two consumers
-    // Semaphore init -> don't use mutex or you're fucked
-
-    // producer threads
+    // initialize buffer queue 
+    sharedData.buffer = queue<RequestType*>();
 
     /*
      * Initialization of semaphores
      */
-
-    // sem_t mutex;          // for the mutex lock of the broker queue (critical section)
-    // sem_t availableSlots; // space in the buffer
-    // sem_t unconsumed;     // items in the buffer
-    //sem_t precedence; // main waiting for the last item to be consumed before exiting
 
     if(sem_init(&sharedData.mutex, 0, 1) == -1){
         cerr << "mutex semaphore failed" << endl;
@@ -155,6 +154,9 @@ int main(int argc, char **argv)
         return BADFLAG;
     }
 
+    /*
+    COMMENT FOR STAGE TESTING
+    */
     sharedData.isBitCoin = false;
 
     if(pthread_create(&producerThreadEtherum, NULL, &producer, &sharedData) != 0)
@@ -184,11 +186,19 @@ int main(int argc, char **argv)
     // while loop for producer/consumer we don't control the switching
 
     sem_wait(&sharedData.precedence);
-    log_production_history(sharedData.coinsProduced, sharedData.coinsConsumed);
 
+    // convert the consumed array to hold the values 
+    unsigned int *coinsConsumed[] = {sharedData.coinsConsumed[BlockchainX], sharedData.coinsConsumed[BlockchainY]};
+
+
+    log_production_history(sharedData.coinsProduced, coinsConsumed);
+
+    // Comment out for now
     // once finished
     sem_destroy(&sharedData.mutex);
     sem_destroy(&sharedData.availableSlots);
     sem_destroy(&sharedData.unconsumed);
     sem_destroy(&sharedData.precedence);
+
+
 }
