@@ -37,9 +37,6 @@ void *producer(void *argument)
     // do production first
     while (true) // true is the constant is 1
     {
-
-        usleep(sleepTime);
-
         if(sharedData->isBitCoin){
             sleepTime = sharedData->bitProducingTime;
         }
@@ -48,6 +45,8 @@ void *producer(void *argument)
             sleepTime = sharedData->ethProductingTime;
         }
 
+        cout << "Sleep time: " << sleepTime << endl;
+        
         // produce the item to place into the buffer
         usleep(sleepTime);
         
@@ -82,8 +81,13 @@ void *producer(void *argument)
 
         //check if the sum of bit and eth equals the total number of requests --> signal
         //when request production is complete
+        // if(sharedData->coinsProduced[bitcoinSignature] + sharedData->coinsProduced[ethereumSignature] == sharedData->numRequests){
+        //     sem_post(&sharedData->precedence);
+        // }
+
+        // Break out of the loop when the total number of requests have been produced
         if(sharedData->coinsProduced[bitcoinSignature] + sharedData->coinsProduced[ethereumSignature] == sharedData->numRequests){
-            sem_post(&sharedData->precedence);
+            break;
         }
 
         //call logging 

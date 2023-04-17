@@ -34,6 +34,13 @@ int main(int argc, char **argv)
     int numParse;
     SHARED_DATA sharedData;
 
+    // Set the default values for the arguments
+    sharedData.numRequests = DEFAULT_NUM_REQUESTS;
+    sharedData.xConsumingTime = DEFAULT_NO_DELAY;
+    sharedData.yConsumingTime = DEFAULT_NO_DELAY;
+    sharedData.bitProducingTime = DEFAULT_NO_DELAY;
+    sharedData.ethProductingTime = DEFAULT_NO_DELAY;
+
     // used to past in the arguments
     while ((option = getopt(argc, argv, "r:x:y:b:e:")) != -1)
     {
@@ -92,7 +99,6 @@ int main(int argc, char **argv)
         }
     }
 
-
     //initialize coinsProduced and coinsInRequestQueue arrays for logging purposes
     sharedData.coinsProduced[0] = 0;
     sharedData.coinsProduced[1] = 0;
@@ -109,16 +115,9 @@ int main(int argc, char **argv)
     // initialize buffer queue 
     sharedData.buffer = queue<RequestType*>();
 
-    
-
     /*
      * Initialization of semaphores
      */
-
-    // sem_t mutex;          // for the mutex lock of the broker queue (critical section)
-    // sem_t availableSlots; // space in the buffer
-    // sem_t unconsumed;     // items in the buffer
-    //sem_t precedence; // main waiting for the last item to be consumed before exiting
 
     if(sem_init(&sharedData.mutex, 0, 1) == -1){
         cerr << "mutex semaphore failed" << endl;
@@ -192,11 +191,12 @@ int main(int argc, char **argv)
 
     log_production_history(sharedData.coinsProduced, coinsConsumed);
 
+    // Comment out for now
     // once finished
-    sem_destroy(&sharedData.mutex);
-    sem_destroy(&sharedData.availableSlots);
-    sem_destroy(&sharedData.unconsumed);
-    sem_destroy(&sharedData.precedence);
+    // sem_destroy(&sharedData.mutex);
+    // sem_destroy(&sharedData.availableSlots);
+    // sem_destroy(&sharedData.unconsumed);
+    // sem_destroy(&sharedData.precedence);
 
 
 }

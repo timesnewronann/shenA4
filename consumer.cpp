@@ -36,11 +36,7 @@ void consumer(void *argument)
         //blockType = BlockchainY;
     }
 
-
-
- 
-    while (true)
-    {
+    while (true){
         // wait for the unconsumed semaphore -> block until something is available to consume 
         sem_wait(&sharedData->unconsumed);
 
@@ -62,7 +58,7 @@ void consumer(void *argument)
 
 
         // check for the pointer *requestedType when testing 
-        //log_request_removed(consumedType,*requestedType, *sharedData->coinsConsumed,sharedData->coinsInRequestQueue); 
+        log_request_removed(consumedType,*requestedType, sharedData->coinsConsumed[consumedType],sharedData->coinsInRequestQueue); 
 
         // unlock
         sem_post(&sharedData->mutex);
@@ -87,6 +83,9 @@ void consumer(void *argument)
         else{
             sleepTime = sharedData->yConsumingTime;
         }
+        
+        // print out the sleep time
+        cout << "Sleep time: " << sleepTime << endl;
         
         // simulate the consumption with sleep -> consume or use item
         usleep(sleepTime);
