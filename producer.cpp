@@ -39,18 +39,21 @@ void *producer(void *argument)
     {
         if(sharedData->isBitCoin){
             sleepTime = sharedData->bitProducingTime;
+            
+            // need to check the amount of bitcoin produced
+            sem_wait(&sharedData->bitCoinsInBuffer);
+
         }
         else // ethereum sleep time if is not bitcoin
         {
             sleepTime = sharedData->ethProductingTime;
         }
 
-        cout << "Sleep time: " << sleepTime << endl;
         
         // produce the item to place into the buffer
         usleep(sleepTime);
         
-        
+      
         // make sure we have room on the buffer
         sem_wait(&sharedData->availableSlots);
 

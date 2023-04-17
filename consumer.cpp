@@ -25,6 +25,7 @@ void consumer(void *argument)
     RequestType *requestedType; // declare the item type
     ConsumerType consumedType; // delcare the item type 
 
+
     if (sharedData->isBlockX)
     {
         consumedType = BlockchainX;
@@ -50,6 +51,9 @@ void consumer(void *argument)
         requestedType = sharedData->buffer.front();
         sharedData->buffer.pop(); // pop off the queue
 
+    
+
+
         //increment the amount of coins consumed
         sharedData->coinsConsumed[consumedType][*requestedType]++;
 
@@ -66,6 +70,12 @@ void consumer(void *argument)
         /*
         * ... EXITING CRITICAL SECTION
         */
+
+        
+        if(*requestedType == Bitcoin)
+        {
+            sem_post(&sharedData->bitCoinsInBuffer);
+        }
 
         // alert there is now a spot in the buffer
         sem_post(&sharedData->availableSlots);
@@ -84,8 +94,7 @@ void consumer(void *argument)
             sleepTime = sharedData->yConsumingTime;
         }
         
-        // print out the sleep time
-        cout << "Sleep time: " << sleepTime << endl;
+       
         
         // simulate the consumption with sleep -> consume or use item
         usleep(sleepTime);
