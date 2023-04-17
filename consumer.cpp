@@ -53,7 +53,7 @@ void consumer(void *argument)
 
 
         //increment the amount of coins consumed (For logging purposes)
-        sharedData->coinsConsumed[consumer][*requestedType]++;
+        sharedData->coinsConsumed[consumer][0]++;
 
         //decrement the amount of coins in the queue because we popped out from the queue (For logging purposes)
         sharedData->coinsInRequestQueue[*requestedType]--;

@@ -24,6 +24,7 @@ void *producer(void *argument)
     int coinType; 
 
     RequestType requestedType;
+
     if(sharedData->isBitCoin){
         requestedType = Bitcoin;
         coinType = bitcoinSignature;
