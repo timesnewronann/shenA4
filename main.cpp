@@ -101,15 +101,15 @@ int main(int argc, char **argv)
     sharedData.coinsInRequestQueue[1] = 0;
 
     //initialize coinsConsumed array for logging purposes
-    sharedData.coinsConsumed[0] = 0;
-    sharedData.coinsConsumed[1] = 0;
+    sharedData.coinsConsumed[0][0] = 0;
+    sharedData.coinsConsumed[0][1] = 0;
+    sharedData.coinsConsumed[1][0] = 0;
+    sharedData.coinsConsumed[1][1] = 0;
+
+    // initialize buffer queue 
+    sharedData.buffer = queue<RequestType*>();
 
     
-
-    // on start create two producers and two consumers
-    // Semaphore init -> don't use mutex or you're fucked
-
-    // producer threads
 
     /*
      * Initialization of semaphores
@@ -184,11 +184,19 @@ int main(int argc, char **argv)
     // while loop for producer/consumer we don't control the switching
 
     sem_wait(&sharedData.precedence);
-    log_production_history(sharedData.coinsProduced, sharedData.coinsConsumed);
+
+    // convert the consumed array to hold the values 
+
+    unsigned int *coinsConsumed[] = {sharedData.coinsConsumed[BlockchainX], sharedData.coinsConsumed[BlockchainY]};
+
+
+    log_production_history(sharedData.coinsProduced, coinsConsumed);
 
     // once finished
     sem_destroy(&sharedData.mutex);
     sem_destroy(&sharedData.availableSlots);
     sem_destroy(&sharedData.unconsumed);
     sem_destroy(&sharedData.precedence);
+
+
 }

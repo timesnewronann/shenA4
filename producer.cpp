@@ -19,12 +19,7 @@ void *producer(void *argument)
 {
     SHARED_DATA *sharedData = (SHARED_DATA *)argument;
     int sleepTime = 0;
-    // create the item type depending on the argument we pass
-    // RequestType requestedType = *((RequestType *)argument);
-    
-    
-
-    
+   
 
     int coinType; 
 
@@ -39,7 +34,6 @@ void *producer(void *argument)
     }
 
     
-
     // do production first
     while (true) // true is the constant is 1
     {

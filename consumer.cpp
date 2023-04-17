@@ -54,9 +54,15 @@ void consumer(void *argument)
         requestedType = sharedData->buffer.front();
         sharedData->buffer.pop(); // pop off the queue
 
+        //increment the amount of coins consumed
+        sharedData->coinsConsumed[consumedType][*requestedType]++;
+
+        //decrement the amount of coins in the queue because we popped out from the queue
+        sharedData->coinsInRequestQueue[*requestedType]--;
+
 
         // check for the pointer *requestedType when testing 
-        log_request_removed(consumedType,*requestedType, *sharedData->coinsConsumed,sharedData->coinsInRequestQueue); 
+        //log_request_removed(consumedType,*requestedType, *sharedData->coinsConsumed,sharedData->coinsInRequestQueue); 
 
         // unlock
         sem_post(&sharedData->mutex);
@@ -84,6 +90,13 @@ void consumer(void *argument)
         
         // simulate the consumption with sleep -> consume or use item
         usleep(sleepTime);
+
+
+        // need to break out of the while loop
+        if(sharedData->coinsProduced[0] + sharedData->coinsProduced[1] == sharedData->numRequests && sharedData->buffer.size() == 0)
+        {
+            break;
+        }
         
     }
 
