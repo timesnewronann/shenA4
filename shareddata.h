@@ -27,8 +27,8 @@ class SHARED_DATA{
         int yConsumingTime;
 
         //moved to producer_data
-        int bitProducingTime;
-        int ethProductingTime;
+        // int bitProducingTime;
+        // int ethProductingTime;
 
         bool isBitCoin; //variable to declare bitcoin or ethereum production for the respective thread. 
         bool isBlockX;  //variable to declare blockchain x or blockychain y for the respective thread. 

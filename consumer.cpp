@@ -102,13 +102,14 @@ void consumer(void *argument)
         // need to break out of the while loop
         if(sharedData->coinsProduced[0] + sharedData->coinsProduced[1] == sharedData->numRequests && sharedData->buffer.size() == 0)
         {
+            if(!sharedData->buffer.size()){
+                sem_post(&sharedData->precedence); // offset the producer waiting for consumer to finish
+                sem_post(&sharedData->precedence); // offset main waiting for consumer to finish
+            }
             break;
         }
         
-    
     }
 
-    if(!sharedData->buffer.size()){
-        sem_post(&sharedData->precedence);
-    }
+    
 }

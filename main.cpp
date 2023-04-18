@@ -11,6 +11,8 @@
 #include "producer.h"
 #include "cryptoexchange.h"
 #include "shareddata.h"
+#include "producerdata.h"
+#include "consumerdata.h"
 
 #define DEFAULT_NO_DELAY 0
 #define BADFLAG 0
@@ -23,24 +25,55 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    // consider storing the initialization of these variables in a separate class if they are shared
-    // int numRequests;
-    // int xConsumingTime;
-    // int yConsumingTime;
-    // int bitProducingTime;
-    // int ethProductingTime;
+    /*
+    * Initialize data structures holding relevant semaphores, variables, and types specific to
+    * the desired production and consumption
+    */
+    
+    SHARED_DATA sharedData;
+    // initialize buffer queue 
+    sharedData.buffer = queue<RequestType*>();
 
+     // Set the default values for the arguments
+    sharedData.numRequests = DEFAULT_NUM_REQUESTS;
+
+    /*
+    * For logging purposes:
+    * initialize coinsProduced and coinsInRequestQueue arrays in order to monitor the
+    * number of bitcoin and ethereum produced separately
+    */
+    sharedData.coinsProduced[0] = 0;
+    sharedData.coinsProduced[1] = 0;
+
+    sharedData.coinsInRequestQueue[0] = 0;
+    sharedData.coinsInRequestQueue[1] = 0;
+
+    /*
+    * For logging purposes:
+    * initialize the coinsConsumed array to monitor the bitcoin and ethereum produced 
+    * in each blockchain. 
+    */
+    sharedData.coinsConsumed[0][0] = 0;
+    sharedData.coinsConsumed[0][1] = 0;
+    sharedData.coinsConsumed[1][0] = 0;
+    sharedData.coinsConsumed[1][1] = 0;
+
+    PRODUCER_DATA bitcoinProducerData;
+    bitcoinProducerData.sharedData = &sharedData;
+    bitcoinProducerData.request = Bitcoin; //passing in enum for bitcoin
+    bitcoinProducerData.producingTime = DEFAULT_NO_DELAY;
+
+    PRODUCER_DATA ethereumProducerData;
+    ethereumProducerData.sharedData = &sharedData;
+    ethereumProducerData.request = Ethereum; //passing in enum for ethereum
+    ethereumProducerData.producingTime = DEFAULT_NO_DELAY;
+    
+    sharedData.xConsumingTime = DEFAULT_NO_DELAY; //change once consumer data objects created
+    sharedData.yConsumingTime = DEFAULT_NO_DELAY; //change once consumer data objects created
+    
+    
     int option; // will be used for command line switch
     int numParse;
-    SHARED_DATA sharedData;
-
-    // Set the default values for the arguments
-    sharedData.numRequests = DEFAULT_NUM_REQUESTS;
-    sharedData.xConsumingTime = DEFAULT_NO_DELAY;
-    sharedData.yConsumingTime = DEFAULT_NO_DELAY;
-    sharedData.bitProducingTime = DEFAULT_NO_DELAY;
-    sharedData.ethProductingTime = DEFAULT_NO_DELAY;
-
     // used to past in the arguments
     while ((option = getopt(argc, argv, "r:x:y:b:e:")) != -1)
     {
@@ -81,7 +114,7 @@ int main(int argc, char **argv)
             {
                 numParse = DEFAULT_NO_DELAY;
             }
-            sharedData.bitProducingTime = numParse;
+            bitcoinProducerData.producingTime = numParse;
             break;
 
         // etherum consuming time
@@ -91,29 +124,13 @@ int main(int argc, char **argv)
             {
                 numParse = DEFAULT_NO_DELAY;
             }
-            sharedData.ethProductingTime = numParse;
+            ethereumProducerData.producingTime = numParse;
             break;
         // Case that is not specified in the list of optional arguments.
         default:
             exit(BADFLAG);
         }
     }
-
-    //initialize coinsProduced and coinsInRequestQueue arrays for logging purposes
-    sharedData.coinsProduced[0] = 0;
-    sharedData.coinsProduced[1] = 0;
-
-    sharedData.coinsInRequestQueue[0] = 0;
-    sharedData.coinsInRequestQueue[1] = 0;
-
-    //initialize coinsConsumed array for logging purposes
-    sharedData.coinsConsumed[0][0] = 0;
-    sharedData.coinsConsumed[0][1] = 0;
-    sharedData.coinsConsumed[1][0] = 0;
-    sharedData.coinsConsumed[1][1] = 0;
-
-    // initialize buffer queue 
-    sharedData.buffer = queue<RequestType*>();
 
     /*
      * Initialization of semaphores
@@ -148,21 +165,18 @@ int main(int argc, char **argv)
     pthread_t consumerBlockX;
     pthread_t consumerBlockY;
 
-    sharedData.isBitCoin = true;
 
-    if(pthread_create(&producerThreadBitcoin, NULL, &producer, &sharedData) != 0){
+    if(pthread_create(&producerThreadBitcoin, NULL, &producer, &bitcoinProducerData) != 0){
         return BADFLAG;
     }
-
+    
     /*
     COMMENT FOR STAGE TESTING
     */
-    // sharedData.isBitCoin = false;
 
-    // if(pthread_create(&producerThreadEtherum, NULL, &producer, &sharedData) != 0)
-    // {
-    //     return BADFLAG;
-    // }
+    if(pthread_create(&producerThreadEtherum, NULL, &producer, &ethereumProducerData) != 0){
+        return BADFLAG;
+    }
 
     sharedData.isBlockX = true;
     if(pthread_create(&consumerBlockX, NULL, &consumer, &sharedData) != 0){
@@ -185,6 +199,7 @@ int main(int argc, char **argv)
     // will have interleaving execution
     // while loop for producer/consumer we don't control the switching
 
+    //wait 
     sem_wait(&sharedData.precedence);
 
     // convert the consumed array to hold the values 
@@ -199,6 +214,5 @@ int main(int argc, char **argv)
     sem_destroy(&sharedData.availableSlots);
     sem_destroy(&sharedData.unconsumed);
     sem_destroy(&sharedData.precedence);
-
 
 }
