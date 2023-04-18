@@ -1,5 +1,5 @@
-#ifndef CS480A4_SHAREDDATA_H
-#define CS480A4_SHAREDDATA_H
+#ifndef CS480A4_PRODUCERDATA_H
+#define CS480A4_PRODUCERDATA_H
 
 #include <queue>
 #include <semaphore.h>
@@ -23,12 +23,14 @@ class SHARED_DATA{
         * Option Arguments
         */
         int numRequests;
-        int xConsumingTime;
-        int yConsumingTime;
+
+        //moved to consumer_data
+        // int xConsumingTime;
+        // int yConsumingTime;
 
         //moved to producer_data
-        int bitProducingTime;
-        int ethProductingTime;
+        // int bitProducingTime;
+        // int ethProductingTime;
 
         bool isBitCoin; //variable to declare bitcoin or ethereum production for the respective thread. 
         bool isBlockX;  //variable to declare blockchain x or blockychain y for the respective thread. 
@@ -41,4 +43,4 @@ class SHARED_DATA{
 
 };
 
-#endif //CS480A4_SHAREDDATA_H
+#endif //CS480A4_PRODUCERDATA_H

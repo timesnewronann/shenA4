@@ -1,3 +1,18 @@
+4/17 11PM: 
+when testing only the bitcoinproducer and blockchain x, most of the time it shows the expected report, and 
+othertimes shows a segmentation fault at the line that updates the *consumed array that we pass into the 3rd argument 
+of log_request_removed:
+
+sharedData->coinsConsumed[consumer][*requestedType]++;
+
+When using gdb to print out the requested type at the instance of the segfault, we get Ethereum when we only expect 
+bitcoin, which I am confused about since the previous logging has been able to identify the request type as bitcoin. 
+Could it be the initialization of our enum request types that could be causing a problem? 
+
+
+
+
+
 When handling two different blockchains and coins, the broker overproduces and the bitcoin goes negative 
 
 git commands:

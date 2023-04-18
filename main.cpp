@@ -157,23 +157,23 @@ int main(int argc, char **argv)
     /*
     COMMENT FOR STAGE TESTING
     */
-    sharedData.isBitCoin = false;
+    // sharedData.isBitCoin = false;
 
-    if(pthread_create(&producerThreadEtherum, NULL, &producer, &sharedData) != 0)
-    {
-        return BADFLAG;
-    }
+    // if(pthread_create(&producerThreadEtherum, NULL, &producer, &sharedData) != 0)
+    // {
+    //     return BADFLAG;
+    // }
 
     sharedData.isBlockX = true;
     if(pthread_create(&consumerBlockX, NULL, &consumer, &sharedData) != 0){
         return BADFLAG;
     }
 
-    sharedData.isBlockX = false;
-    if(pthread_create(&consumerBlockY, NULL, &consumer, &sharedData) != 0)
-    {
-        return BADFLAG;
-    }
+    // sharedData.isBlockX = false;
+    // if(pthread_create(&consumerBlockY, NULL, &consumer, &sharedData) != 0)
+    // {
+    //     return BADFLAG;
+    // }
 
     // wait for consumer to consume last item
     // use barrier
