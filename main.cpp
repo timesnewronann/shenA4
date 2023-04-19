@@ -68,8 +68,17 @@ int main(int argc, char **argv)
     ethereumProducerData.request = Ethereum; //passing in enum for ethereum
     ethereumProducerData.producingTime = DEFAULT_NO_DELAY;
     
-    sharedData.xConsumingTime = DEFAULT_NO_DELAY; //change once consumer data objects created
-    sharedData.yConsumingTime = DEFAULT_NO_DELAY; //change once consumer data objects created
+    CONSUMER_DATA xData;
+    xData.sharedData = &sharedData;
+    xData.consumer = BlockchainX;
+    xData.consumingTime = DEFAULT_NO_DELAY;
+    
+    
+    CONSUMER_DATA yData;
+    yData.sharedData = &sharedData;
+    yData.consumer = BlockchainY; 
+    yData.consumingTime= DEFAULT_NO_DELAY; 
+    
     
     
     
@@ -96,7 +105,7 @@ int main(int argc, char **argv)
             {
                 numParse = DEFAULT_NO_DELAY;
             }
-            sharedData.xConsumingTime = numParse;
+            xData.consumingTime = numParse;
             break;
 
         // blockChain Y consuming time
@@ -106,7 +115,7 @@ int main(int argc, char **argv)
             {
                 numParse = DEFAULT_NO_DELAY;
             }
-            sharedData.yConsumingTime = numParse;
+            yData.consumingTime = numParse;
             break;
         // bitCoin production time
         case 'b':
@@ -171,24 +180,20 @@ int main(int argc, char **argv)
         return BADFLAG;
     }
     
-    /*
-    COMMENT FOR STAGE TESTING
-    */
 
     if(pthread_create(&producerThreadEtherum, NULL, &producer, &ethereumProducerData) != 0){
         return BADFLAG;
     }
 
-    sharedData.isBlockX = true;
-    if(pthread_create(&consumerBlockX, NULL, &consumer, &sharedData) != 0){
+    
+    if(pthread_create(&consumerBlockX, NULL, &consumer, &xData) != 0){
         return BADFLAG;
     }
 
-    // sharedData.isBlockX = false;
-    // if(pthread_create(&consumerBlockY, NULL, &consumer, &sharedData) != 0)
-    // {
-    //     return BADFLAG;
-    // }
+    if(pthread_create(&consumerBlockY, NULL, &consumer, &yData) != 0)
+    {
+        return BADFLAG;
+    }
 
 
     // we do not know before hand which consumer will consume the last request

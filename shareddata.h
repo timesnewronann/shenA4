@@ -25,15 +25,15 @@ class SHARED_DATA{
         int numRequests;
 
         //moved to consumer
-        int xConsumingTime;
-        int yConsumingTime;
+        //int xConsumingTime;
+        //int yConsumingTime;
 
         //moved to producer_data
         // int bitProducingTime;
         // int ethProductingTime;
 
-        bool isBitCoin; //variable to declare bitcoin or ethereum production for the respective thread. 
-        bool isBlockX;  //variable to declare blockchain x or blockychain y for the respective thread. 
+        //bool isBitCoin; //variable to declare bitcoin or ethereum production for the respective thread. 
+        //bool isBlockX;  //variable to declare blockchain x or blockychain y for the respective thread. 
 
         unsigned int coinsProduced[2]; //array to monitor the number of bitcoin and etherum produced separately 
         unsigned int coinsInRequestQueue[2]; //array to monitor the influx/outflux of bitcoin and ethereum in the request queue

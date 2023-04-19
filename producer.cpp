@@ -13,6 +13,7 @@
 
 #define bitcoinSignature 0
 #define ethereumSignature 1
+#define microTonano 1000
 
 using namespace std;
 
@@ -20,8 +21,8 @@ void *producer(void *argument)
 {
     PRODUCER_DATA *producerData = (PRODUCER_DATA *)argument;
     
-    cout << "TYPE: " << producerData->request << endl;
-    cout << "BITPRODUCETIME: " << producerData->producingTime  << endl;
+    // cout << "TYPE: " << producerData->request << endl;
+    // cout << "BITPRODUCETIME: " << producerData->producingTime  << endl;
     
     
     // do production first
@@ -31,7 +32,7 @@ void *producer(void *argument)
 
      // sleep at the beginning
      // produce the item before accessing critical section
-      usleep(producerData->producingTime);
+      usleep(microTonano * producerData->producingTime);
 
     
         if(producerData->request == Bitcoin){
@@ -78,13 +79,18 @@ void *producer(void *argument)
         // signal the consumer semaphore to alert there is a new request available
         sem_post(&producerData->sharedData->unconsumed);
 
+        cout << "bitcoin sig " << producerData->sharedData->coinsProduced[bitcoinSignature] << endl;
+        cout << "etherum sig " << producerData->sharedData->coinsProduced[ethereumSignature] << endl;
+        cout << "number of requests" << producerData->sharedData->numRequests << endl;
         // Break out of the loop when the total number of requests have been produced
         if(producerData->sharedData->coinsProduced[bitcoinSignature] + producerData->sharedData->coinsProduced[ethereumSignature] == producerData->sharedData->numRequests){
             //wait for consumer to finish before ending producer thread
             cout << "TOTAL REQUESTS REACHED ******************" << endl;
-            sem_wait(&producerData->sharedData->precedence);
             break;
+            /*
+            * TRY:
+            *pthread_exit(argument);
+            */
         }
-
     }
 }
