@@ -85,12 +85,12 @@ void consumer(void *argument)
         consumerData->sharedData->coinsProduced[1] >= consumerData->sharedData->numRequests && 
         consumerData->sharedData->buffer.size() == 0)
         {
-            cout << "CONSUMING DONE -> BREAKK" << endl;
+            // cout << "CONSUMING DONE -> BREAKK" << endl;
             //sem_post(&consumerData->sharedData->precedence); // offset the producer waiting for consumer to finish
             sem_post(&consumerData->sharedData->precedence); // offset main waiting for consumer to finish
             break;
         }
-        cout << "hi" << endl;
+        // cout << "hi" << endl;
         
     }
 

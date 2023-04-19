@@ -1,3 +1,10 @@
+// Author: Cody Chinothai (REDID: 825488190)
+// Author: Ronan Borja (REDID: 825164880)
+// San Diego State University
+// CS480 Operating Systems
+//
+// File: main.cpp
+// Main executation thread that manages the initialization 
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -84,7 +91,7 @@ int main(int argc, char **argv)
     
     int option; // will be used for command line switch
     int numParse;
-    // used to past in the arguments
+    // used to pass in the arguments
     while ((option = getopt(argc, argv, "r:x:y:b:e:")) != -1)
     {
         switch (option)
@@ -213,9 +220,9 @@ int main(int argc, char **argv)
 
     // Comment out for now
     // once finished
-    sem_destroy(&sharedData.mutex);
-    sem_destroy(&sharedData.availableSlots);
-    sem_destroy(&sharedData.unconsumed);
-    sem_destroy(&sharedData.precedence);
+    // sem_destroy(&sharedData.mutex);
+    // sem_destroy(&sharedData.availableSlots);
+    // sem_destroy(&sharedData.unconsumed);
+    // sem_destroy(&sharedData.precedence);
 
 }

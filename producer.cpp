@@ -27,12 +27,11 @@ void *producer(void *argument)
     
     // do production first
     while (true){ // true is the constant is 1
-    
 
 
      // sleep at the beginning
      // produce the item before accessing critical section
-      usleep(microTonano * producerData->producingTime);
+        usleep(microTonano * producerData->producingTime);
 
     
         if(producerData->request == Bitcoin){
@@ -56,17 +55,18 @@ void *producer(void *argument)
         // lock the queue
         sem_wait(&producerData->sharedData->mutex);
 
-        // add the type to the request queue
-        producerData->sharedData->buffer.push(&producerData->request);
+        if(producerData->sharedData->coinsProduced[bitcoinSignature] + producerData->sharedData->coinsProduced[ethereumSignature] < producerData->sharedData->numRequests){
+            // add the type to the request queue
+            producerData->sharedData->buffer.push(&producerData->request);
 
-        // produced and inRequestQueue reflect numbers *after* adding the current request. (For logging purposes)
-        producerData->sharedData->coinsProduced[producerData->request]++;
-        producerData->sharedData->coinsInRequestQueue[producerData->request]++;
+            // produced and inRequestQueue reflect numbers *after* adding the current request. (For logging purposes)
+            producerData->sharedData->coinsProduced[producerData->request]++;
+            producerData->sharedData->coinsInRequestQueue[producerData->request]++;
 
-        log_request_added(producerData->request,
-        producerData->sharedData->coinsProduced,
-        producerData->sharedData->coinsInRequestQueue);
-
+            log_request_added(producerData->request,
+            producerData->sharedData->coinsProduced,
+            producerData->sharedData->coinsInRequestQueue);
+        }
         // release the lock
         sem_post(&producerData->sharedData->mutex);
 
@@ -77,13 +77,13 @@ void *producer(void *argument)
         // signal the unconsumed semaphore to alert there is a new request available
         sem_post(&producerData->sharedData->unconsumed);
 
-        cout << "bitcoin sig " << producerData->sharedData->coinsProduced[bitcoinSignature] << endl;
-        cout << "etherum sig " << producerData->sharedData->coinsProduced[ethereumSignature] << endl;
-        cout << "number of requests" << producerData->sharedData->numRequests << endl;
+        // cout << "bitcoin sig " << producerData->sharedData->coinsProduced[bitcoinSignature] << endl;
+        // cout << "etherum sig " << producerData->sharedData->coinsProduced[ethereumSignature] << endl;
+        // cout << "number of requests" << producerData->sharedData->numRequests << endl;
         // Break out of the loop when the total number of requests have been produced
         if(producerData->sharedData->coinsProduced[bitcoinSignature] + producerData->sharedData->coinsProduced[ethereumSignature] >= producerData->sharedData->numRequests){
             //wait for consumer to finish before ending producer thread
-            cout << "TOTAL REQUESTS REACHED $$$$" << endl;
+            // cout << "TOTAL REQUESTS REACHED $$$$" << endl;
             break;
             /*
             * TRY:
@@ -91,7 +91,7 @@ void *producer(void *argument)
             */
            
         }
-        cout << "hey" << endl;
+        // cout << "hey" << endl;
     }
     
     pthread_exit(argument);

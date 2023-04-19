@@ -6,7 +6,7 @@ CC=g++
 CCFLAGS=-std=c++11 -Wall -g3 -c
 
 # object files
-OBJS = producer.o consumer.o broker.o log.o main.o
+OBJS = producer.o consumer.o log.o main.o
 
 # Program name
 PROGRAM = cryptoexc
@@ -23,9 +23,6 @@ producer.o : producer.cpp producer.h
 
 consumer.o : consumer.cpp consumer.h
 	$(CC) $(CCFLAGS) consumer.cpp
-
-broker.o: broker.cpp broker.h
-	$(CC) $(CCFLAGS) broker.cpp
 
 log.o: log.cpp log.h
 	$(CC) $(CCFLAGS) log.cpp
