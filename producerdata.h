@@ -1,8 +1,7 @@
 #ifndef CS480A4_PRODUCERDATA_H
 #define CS480A4_PRODUCERDATA_H
 
-#include <queue>
-#include <semaphore.h>
+
 #include "cryptoexchange.h"
 #include "shareddata.h"
 

@@ -8,6 +8,7 @@
 #include "cryptoexchange.h"
 #include "shareddata.h"
 #include "log.h"
+#include "consumerdata.h"
 
 using namespace std;
 
@@ -21,6 +22,7 @@ void consumer(void *argument)
     // create all of them at the same time
 
     SHARED_DATA *sharedData = (SHARED_DATA *)argument; 
+    
     int sleepTime = 0;
     RequestType *requestedType; // declare the item type
     ConsumerType consumer; // delcare the item type 
@@ -29,12 +31,10 @@ void consumer(void *argument)
     if (sharedData->isBlockX)
     {
         consumer = BlockchainX;
-        //blockType = BlockchainX;
     }
     else
     {
         consumer = BlockchainY;
-        //blockType = BlockchainY;
     }
 
     while (true){

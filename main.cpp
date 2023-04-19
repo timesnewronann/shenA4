@@ -72,6 +72,7 @@ int main(int argc, char **argv)
     sharedData.yConsumingTime = DEFAULT_NO_DELAY; //change once consumer data objects created
     
     
+    
     int option; // will be used for command line switch
     int numParse;
     // used to past in the arguments
@@ -107,7 +108,7 @@ int main(int argc, char **argv)
             }
             sharedData.yConsumingTime = numParse;
             break;
-        // bitCoin consuming time
+        // bitCoin production time
         case 'b':
             numParse = atoi(optarg);
             if (optarg == "")
@@ -117,7 +118,7 @@ int main(int argc, char **argv)
             bitcoinProducerData.producingTime = numParse;
             break;
 
-        // etherum consuming time
+        // etherum production time
         case 'e':
             numParse = atoi(optarg);
             if (optarg == "")
@@ -189,17 +190,14 @@ int main(int argc, char **argv)
     //     return BADFLAG;
     // }
 
-    // wait for consumer to consume last item
-    // use barrier
 
     // we do not know before hand which consumer will consume the last request
-
     // if we do not use the semaphore to control the order of execution
-
     // will have interleaving execution
-    // while loop for producer/consumer we don't control the switching
 
-    //wait 
+
+
+    // barrier: wait for consumer to consume last item
     sem_wait(&sharedData.precedence);
 
     // convert the consumed array to hold the values 

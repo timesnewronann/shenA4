@@ -20,22 +20,26 @@ void *producer(void *argument)
 {
     PRODUCER_DATA *producerData = (PRODUCER_DATA *)argument;
     
+    
     // do production first
     while (true){ // true is the constant is 1
-    // don't need to use isBitcoin can use the request type from sharedData
+    // cout << "BITPRODUCETIME: " << producerData->producingTime  << endl;
+    // cout << "TYPE: " << producerData->request << endl;
+
 
      // sleep at the beginning
-     // produce the item to place into the buffer
+     // produce the item before accessing critical section
       usleep(producerData->producingTime);
 
     
         if(producerData->request == Bitcoin){
-            cout << "request is currently bitcoin" << endl;
-            //sleepTime = bitcoin->bitProducingTime;
 
-            // need to check the amount of bitcoin produced
+            // need to check the amount of bitcoin produced: no more than 5 bitcoins in buffer at a time
             sem_wait(&producerData->sharedData->bitCoinsInBuffer);
 
+        }
+        if(producerData->request == Ethereum){
+            sem_wait(&producerData->sharedData->ethereumInBuffer);
         }
        
        
