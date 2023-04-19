@@ -9,6 +9,7 @@
 #include "shareddata.h"
 #include "log.h"
 #include "consumerdata.h"
+#include "producerdata.h"
 
 using namespace std;
 
@@ -22,6 +23,8 @@ void consumer(void *argument)
     // create all of them at the same time
 
     SHARED_DATA *sharedData = (SHARED_DATA *)argument; 
+
+    PRODUCER_DATA *producerData = (PRODUCER_DATA *)argument;
     
     int sleepTime = 0;
     RequestType *requestedType; // declare the item type
@@ -69,11 +72,7 @@ void consumer(void *argument)
         * ... EXITING CRITICAL SECTION
         */
 
-        //bitcoin was consumed so add one more available space to bitcoinsInBuffer
-        if(*requestedType == Bitcoin)
-        {
-            sem_post(&sharedData->bitCoinsInBuffer);
-        }
+        
 
         // alert there is now a spot in the buffer
         sem_post(&sharedData->availableSlots);
@@ -84,6 +83,15 @@ void consumer(void *argument)
             sleepTime = sharedData->xConsumingTime;
         }
         */
+
+       //bitcoin was consumed so add one more available space to bitcoinsInBuffer
+        if(*requestedType == Bitcoin)
+        {
+            sem_post(&sharedData->bitCoinsInBuffer);
+        }
+        if(*requestedType == Ethereum){
+            sem_post(&sharedData->ethereumInBuffer);
+        }
        
         if(sharedData->isBlockX)
         {
@@ -94,9 +102,11 @@ void consumer(void *argument)
         }
         
        
-        
+
         // simulate the consumption with sleep -> consume or use item
         usleep(sleepTime);
+
+
 
 
         // need to break out of the while loop

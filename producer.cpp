@@ -20,11 +20,13 @@ void *producer(void *argument)
 {
     PRODUCER_DATA *producerData = (PRODUCER_DATA *)argument;
     
+    cout << "TYPE: " << producerData->request << endl;
+    cout << "BITPRODUCETIME: " << producerData->producingTime  << endl;
+    
     
     // do production first
     while (true){ // true is the constant is 1
-    // cout << "BITPRODUCETIME: " << producerData->producingTime  << endl;
-    // cout << "TYPE: " << producerData->request << endl;
+    
 
 
      // sleep at the beginning
@@ -79,6 +81,7 @@ void *producer(void *argument)
         // Break out of the loop when the total number of requests have been produced
         if(producerData->sharedData->coinsProduced[bitcoinSignature] + producerData->sharedData->coinsProduced[ethereumSignature] == producerData->sharedData->numRequests){
             //wait for consumer to finish before ending producer thread
+            cout << "TOTAL REQUESTS REACHED ******************" << endl;
             sem_wait(&producerData->sharedData->precedence);
             break;
         }
