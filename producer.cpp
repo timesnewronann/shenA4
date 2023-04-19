@@ -81,9 +81,9 @@ void *producer(void *argument)
         cout << "etherum sig " << producerData->sharedData->coinsProduced[ethereumSignature] << endl;
         cout << "number of requests" << producerData->sharedData->numRequests << endl;
         // Break out of the loop when the total number of requests have been produced
-        if(producerData->sharedData->coinsProduced[bitcoinSignature] + producerData->sharedData->coinsProduced[ethereumSignature] == producerData->sharedData->numRequests){
+        if(producerData->sharedData->coinsProduced[bitcoinSignature] + producerData->sharedData->coinsProduced[ethereumSignature] >= producerData->sharedData->numRequests){
             //wait for consumer to finish before ending producer thread
-            cout << "TOTAL REQUESTS REACHED !!!" << endl;
+            cout << "TOTAL REQUESTS REACHED $$$$" << endl;
             break;
             /*
             * TRY:
