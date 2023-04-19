@@ -41,7 +41,6 @@ void consumer(void *argument)
         requestedType = consumerData->sharedData->buffer.front();
         consumerData->sharedData->buffer.pop(); // pop off the queue
 
-
         //increment the amount of coins consumed (For logging purposes)
         consumerData->sharedData->coinsConsumed[consumerData->consumer][*requestedType]++;
 
@@ -82,16 +81,18 @@ void consumer(void *argument)
 
 
         // need to break out of the while loop
-        if(consumerData->sharedData->coinsProduced[0] + consumerData->sharedData->coinsProduced[1] == consumerData->sharedData->numRequests && consumerData->sharedData->buffer.size() == 0)
+        if(consumerData->sharedData->coinsProduced[0] +
+        consumerData->sharedData->coinsProduced[1] >= consumerData->sharedData->numRequests && 
+        consumerData->sharedData->buffer.size() == 0)
         {
-            if(!consumerData->sharedData->buffer.size()){
-                //sem_post(&consumerData->sharedData->precedence); // offset the producer waiting for consumer to finish
-                sem_post(&consumerData->sharedData->precedence); // offset main waiting for consumer to finish
-            }
+            cout << "CONSUMING DONE -> BREAKK" << endl;
+            //sem_post(&consumerData->sharedData->precedence); // offset the producer waiting for consumer to finish
+            sem_post(&consumerData->sharedData->precedence); // offset main waiting for consumer to finish
             break;
         }
+        cout << "hi" << endl;
         
     }
 
-    
+    pthread_exit(argument);
 }

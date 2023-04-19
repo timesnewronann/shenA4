@@ -46,8 +46,6 @@ void *producer(void *argument)
         }
        
        
-      
-        
         // make sure we have room on the buffer
         sem_wait(&producerData->sharedData->availableSlots);
 
@@ -76,21 +74,25 @@ void *producer(void *argument)
         * ... EXITING CRITICAL SECTION
         */
 
-        // signal the consumer semaphore to alert there is a new request available
+        // signal the unconsumed semaphore to alert there is a new request available
         sem_post(&producerData->sharedData->unconsumed);
 
         cout << "bitcoin sig " << producerData->sharedData->coinsProduced[bitcoinSignature] << endl;
         cout << "etherum sig " << producerData->sharedData->coinsProduced[ethereumSignature] << endl;
         cout << "number of requests" << producerData->sharedData->numRequests << endl;
         // Break out of the loop when the total number of requests have been produced
-        if(producerData->sharedData->coinsProduced[bitcoinSignature] + producerData->sharedData->coinsProduced[ethereumSignature] == producerData->sharedData->numRequests){
+        if(producerData->sharedData->coinsProduced[bitcoinSignature] + producerData->sharedData->coinsProduced[ethereumSignature] >= producerData->sharedData->numRequests){
             //wait for consumer to finish before ending producer thread
-            cout << "TOTAL REQUESTS REACHED ******************" << endl;
+            cout << "TOTAL REQUESTS REACHED $$$$" << endl;
             break;
             /*
             * TRY:
             *pthread_exit(argument);
             */
+           
         }
+        cout << "hey" << endl;
     }
+    
+    pthread_exit(argument);
 }
