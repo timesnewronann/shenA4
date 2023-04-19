@@ -18,7 +18,7 @@ using namespace std;
 
 /*
  * Data section - names must align with the enumerated types
- * defined in ridesharing.h
+ * defined in cryptoexchange.h
  */
 
 /* Names of producer threads and request types */

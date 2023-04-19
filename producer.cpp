@@ -8,44 +8,91 @@
 #include <pthread.h>
 #include "cryptoexchange.h"
 #include "shareddata.h"
+#include "log.h"
+#include "producerdata.h"
+
+#define bitcoinSignature 0
+#define ethereumSignature 1
+#define microTonano 1000
 
 using namespace std;
 
 void *producer(void *argument)
 {
-    SHARED_DATA *sharedData = (SHARED_DATA *)argument;
-    sharedData->currentProductionNumber = 0;
-    int sleepTime = 0;
-    // create the item type depending on the argument we pass
-    // RequestType requestedType = *((RequestType *)argument);
-    RequestType *requestedType;
-
+    PRODUCER_DATA *producerData = (PRODUCER_DATA *)argument;
+    
+    // cout << "TYPE: " << producerData->request << endl;
+    // cout << "BITPRODUCETIME: " << producerData->producingTime  << endl;
+    
+    
     // do production first
-    while (true) // true is the constant is 1
-    {
-        // sleep outside the critical region to access the broker queue
-        usleep(sleepTime);
-        sharedData->currentProductionNumber++;
+    while (true){ // true is the constant is 1
+    
 
-        // produce the item to place into the buffer
-        requestedType = new RequestType(RequestTypeN);
 
-        // check if we reached the max production
+     // sleep at the beginning
+     // produce the item before accessing critical section
+      usleep(microTonano * producerData->producingTime);
+
+    
+        if(producerData->request == Bitcoin){
+
+            // need to check the amount of bitcoin produced: no more than 5 bitcoins in buffer at a time
+            sem_wait(&producerData->sharedData->bitCoinsInBuffer);
+
+        }
+        if(producerData->request == Ethereum){
+            sem_wait(&producerData->sharedData->ethereumInBuffer);
+        }
+       
+       
         // make sure we have room on the buffer
-        sem_wait(&sharedData->availableSlots);
-        // need available slots from shareddata
+        sem_wait(&producerData->sharedData->availableSlots);
 
-        // wait for the appropriate semaphore
+        /*
+        * ENTERING CRITICAL SECTION...
+        */
 
         // lock the queue
-        sem_wait(&sharedData->mutex);
+        sem_wait(&producerData->sharedData->mutex);
 
         // add the type to the request queue
-        sharedData->buffer.push(requestedType);
-        // release the lock
-        sem_post(&sharedData->mutex);
+        producerData->sharedData->buffer.push(&producerData->request);
 
-        // signal the consumer semaphore to alert there is a new request available
-        sem_post(&sharedData->unconsumed);
+        // produced and inRequestQueue reflect numbers *after* adding the current request. (For logging purposes)
+        producerData->sharedData->coinsProduced[producerData->request]++;
+        producerData->sharedData->coinsInRequestQueue[producerData->request]++;
+
+        log_request_added(producerData->request,
+        producerData->sharedData->coinsProduced,
+        producerData->sharedData->coinsInRequestQueue);
+
+        // release the lock
+        sem_post(&producerData->sharedData->mutex);
+
+        /*
+        * ... EXITING CRITICAL SECTION
+        */
+
+        // signal the unconsumed semaphore to alert there is a new request available
+        sem_post(&producerData->sharedData->unconsumed);
+
+        cout << "bitcoin sig " << producerData->sharedData->coinsProduced[bitcoinSignature] << endl;
+        cout << "etherum sig " << producerData->sharedData->coinsProduced[ethereumSignature] << endl;
+        cout << "number of requests" << producerData->sharedData->numRequests << endl;
+        // Break out of the loop when the total number of requests have been produced
+        if(producerData->sharedData->coinsProduced[bitcoinSignature] + producerData->sharedData->coinsProduced[ethereumSignature] == producerData->sharedData->numRequests){
+            //wait for consumer to finish before ending producer thread
+            cout << "TOTAL REQUESTS REACHED !!!" << endl;
+            break;
+            /*
+            * TRY:
+            *pthread_exit(argument);
+            */
+           
+        }
+        cout << "hey" << endl;
     }
+    
+    pthread_exit(argument);
 }
